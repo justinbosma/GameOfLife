@@ -1,0 +1,27 @@
+
+td {
+    margin: 1px;
+    padding: 15px;
+    background-color: #003C66;
+    border: 2px solid;
+    border-color: #014383;
+	margin-left: auto;
+    margin-right: auto;
+}
+
+table {
+		margin-left: auto;
+    margin-right: auto;
+}
+tr {
+	color: yellow;
+} 
+body {
+	color: red;
+}
+
+h1 {
+	font-weight: normal;
+}
+
+
