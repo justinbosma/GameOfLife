@@ -1,7 +1,17 @@
 var width = 20;
 var height = 20;
 var array = [[]];
+var tempArray = [[]];
 var cellSize = 20;
+var currentColumn;
+var statesArray = [[9, 9], [9, 8], [9, 7]];
+
+make2DArray(array, width, height);
+make2DArray(tempArray, width, height);
+initialSetup(array, statesArray, currentColumn);
+console.log(currentColumn);
+setInterval(function(){ update(array, width, height, cellSize, currentColumn) }, 500);
+
 //create 2d array for cells
 function make2DArray(array, width, height) {
 	for(var i = 0; i < width; i++) {
@@ -13,25 +23,59 @@ function make2DArray(array, width, height) {
 	};
 };
 //draw the cells and colors to the canvas
-function draw(array, width, height, cellSize) {
+function draw() {
 	var canvas = document.getElementById("myCanvas");
 	var ctx = canvas.getContext("2d");
+	ctx.beginPath();
 	for(var i = 0; i < width; i++) {
 		for(var j = 0; j < height; j++) {
 			if(array[i][j] == 1) {
-				ctx.beginPath();
-				ctx.fillStyle = "#004DFF"
+				
+				if(i == currentColumn) {
+					ctx.fillStyle = "#e5ff00"
+				}
+				else {
+					ctx.fillStyle = "#b1ba62"
+				}
 				ctx.fillRect(i*cellSize, j*cellSize, cellSize, cellSize);
 			}
 			else {
-				ctx.beginPath();
-				ctx.strokeStyle = "#FF0000"
-				ctx.rect(i*cellSize, j*cellSize, cellSize, cellSize);
-				ctx.stroke();	
+				ctx.fillStyle = "#000000"
+				ctx.fillRect(i*cellSize, j*cellSize, cellSize, cellSize);
 			}
 		}
 	}
 };
+
+//rules for the game of life
+function moveCells() {
+	for(var i = 0; i < width; i++) {
+		for(var j = 0; j < height; j++) {
+			if(array[i][j] == 1 && getNeighbors(i, j) < 2) {
+				tempArray[i][j] = 0;
+			}
+			else if(array[i][j] == 1 && getNeighbors(i, j) > 3) {
+				tempArray[i][j] = 0;
+			}
+			else if(array[i][j] == 0 && getNeighbors(i, j) == 3) {
+				tempArray[i][j] = 1;
+			}
+			else {
+				tempArray[i][j] = array[i][j];
+			};
+		}
+	}
+	copyArray(array, tempArray);
+};
+
+function copyArray(copyArray, copiedArray) {
+	for(var i = 0; i < width; i++) {
+		for(var j = 0; j < height; j++) {
+			copyArray[i][j] = copiedArray[i][j];
+		}
+	}
+};
+
 //checks if cell is inside board and alive
 function isAlive(i, j) {
 	return (array[i] && array[j] && array[i][j]);
@@ -55,11 +99,11 @@ function getNeighbors(i, j) {
 //live cells sound off
 //x axis is freq (split by note in minor scale)
 //y axis is amplitude
-function makeSound(activeColumn) {
-	for(int i = 0; i < numRows; i++) {
-		if(array[activeColumn][i] == 1) {
+function makeSound() {
+	for(var i = 0; i < height; i++) {
+		if(array[currentColumn][i] == 1) {
 			playSound(i);
-		}
+		};
 	}
 };
 
@@ -70,40 +114,28 @@ function playSound(index) {
 };
 
 function update() {
-	if(gameCounter == numColumns) {
-		gameCounter = 0;
+	draw(array, width, height, cellSize, currentColumn);
+	if(currentColumn == width) {
+		currentColumn = 0;
 		moveCells();
-	}
-	highLightCurrent(gameCounter);
-	makeSound(activeColumn);
-
-};
-
-function highLightCurrent(currentColumn) {
-	//brighten up current column
-};
-//rules for the game of life
-function moveCells(game) {
-	for(int i = 0; i < numColumns; i++) {
-		for(int j = 0; j < numRows; j++) {
-			if(array[i][j] == 1 && getNeighbors(i, j) < 2) {
-				array[i][j] = 0;
-			}
-			else if(array[i][j] == 1 && getNeighbors(i, j) > 3) {
-				array[i][j] = 0;
-			}
-			else if(array[i][j] == 0 && getNeighbors(i, j) == 3) {
-				array[i][j] = 1;
-			}
-		};
 	};
+	//makeSound(array, currentColumn);
+	console.log(currentColumn);
+	currentColumn++;
+
 };
 
+function initialSetup() {
+	var row = 0;
+	var column = 0;
+	currentColumn = 0;
+	for (var i = 0; i < statesArray.length; i++) {
+		row = statesArray[i][0];
+		column = statesArray[i][1];
+		array[row][column] = 1;
+	}
+};
 
-
-make2DArray(array, width, height);
-draw(array, width, height, cellSize);
-console.log(array.length);
 
 //use setInterval to loop through the grid and play next column - each row is a note
 //keep a counter that incerements each interval until == number of column, then start a new cell cycle
